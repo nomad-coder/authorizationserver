@@ -1,50 +1,28 @@
-package com.example.authorizationserver.scim.model;
+package com.example.authorizationserver.scim.api.resource;
 
+import com.example.authorizationserver.scim.model.ScimUserGroupEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-public class ScimGroupEntity extends ScimResourceEntity {
+public class ScimGroupResource extends ScimGroupListResource {
 
-    @Column(unique = true)
-    @NotNull
-    @NotEmpty
-    @Size(min = 1, max = 255)
-    private String displayName;
-
-    @OneToMany(
-            mappedBy = "group",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
     private Set<ScimUserGroupEntity> members = new HashSet<>();
 
-    public ScimGroupEntity() {
+    public ScimGroupResource() {
     }
 
-    public ScimGroupEntity(UUID identifier, String externalId, String displayName, Set<ScimUserGroupEntity> members) {
-        super(identifier, externalId);
-        this.displayName = displayName;
+    public ScimGroupResource(ScimMetaResource meta, UUID identifier, String externalId, String displayName, Set<ScimUserGroupEntity> members) {
+        super(meta, identifier, externalId, displayName);
         this.members = members;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
     }
 
     public Set<ScimUserGroupEntity> getMembers() {
@@ -59,7 +37,7 @@ public class ScimGroupEntity extends ScimResourceEntity {
     public String toString() {
         return new ToStringBuilder(this)
                 .appendSuper(super.toString())
-                .append("displayName", displayName)
+                .append("members", members)
                 .toString();
     }
 
@@ -69,11 +47,11 @@ public class ScimGroupEntity extends ScimResourceEntity {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        ScimGroupEntity that = (ScimGroupEntity) o;
+        ScimGroupResource that = (ScimGroupResource) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(displayName, that.displayName)
+                .append(members, that.members)
                 .isEquals();
     }
 
@@ -81,7 +59,7 @@ public class ScimGroupEntity extends ScimResourceEntity {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(displayName)
+                .append(members)
                 .toHashCode();
     }
 }

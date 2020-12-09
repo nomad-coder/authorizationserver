@@ -2,8 +2,10 @@ package com.example.authorizationserver.scim.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.data.jpa.domain.AbstractPersistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
@@ -14,12 +16,10 @@ import java.util.Objects;
 public class ScimUserGroupEntity extends AbstractPersistable<Long> implements Serializable {
 
     @NotNull
-    @Id
     @ManyToOne(optional = false)
     private ScimUserEntity user;
 
     @NotNull
-    @Id
     @ManyToOne(optional = false)
     private ScimGroupEntity group;
 
@@ -53,20 +53,5 @@ public class ScimUserGroupEntity extends AbstractPersistable<Long> implements Se
                 .append("user", user)
                 .append("group", group)
                 .toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        ScimUserGroupEntity that = (ScimUserGroupEntity) o;
-        return user.equals(that.user) &&
-                group.equals(that.group);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), user, group);
     }
 }

@@ -1,42 +1,28 @@
-package com.example.authorizationserver.scim.model;
+package com.example.authorizationserver.scim.api.resource;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-public class ScimGroupEntity extends ScimResourceEntity {
+public class ScimGroupListResource extends ScimResource {
 
-    @Column(unique = true)
     @NotNull
     @NotEmpty
     @Size(min = 1, max = 255)
     private String displayName;
 
-    @OneToMany(
-            mappedBy = "group",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private Set<ScimUserGroupEntity> members = new HashSet<>();
-
-    public ScimGroupEntity() {
+    public ScimGroupListResource() {
     }
 
-    public ScimGroupEntity(UUID identifier, String externalId, String displayName, Set<ScimUserGroupEntity> members) {
-        super(identifier, externalId);
+    public ScimGroupListResource(ScimMetaResource meta, UUID identifier, String externalId, String displayName) {
+        super(List.of(""), meta, identifier, externalId);
         this.displayName = displayName;
-        this.members = members;
     }
 
     public String getDisplayName() {
@@ -45,14 +31,6 @@ public class ScimGroupEntity extends ScimResourceEntity {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-    }
-
-    public Set<ScimUserGroupEntity> getMembers() {
-        return members;
-    }
-
-    public void setMembers(Set<ScimUserGroupEntity> members) {
-        this.members = members;
     }
 
     @Override
@@ -69,7 +47,7 @@ public class ScimGroupEntity extends ScimResourceEntity {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        ScimGroupEntity that = (ScimGroupEntity) o;
+        ScimGroupListResource that = (ScimGroupListResource) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))

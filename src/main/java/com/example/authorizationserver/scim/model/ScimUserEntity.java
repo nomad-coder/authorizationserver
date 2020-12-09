@@ -3,6 +3,7 @@ package com.example.authorizationserver.scim.model;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -17,6 +18,7 @@ import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.EAGER;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class ScimUserEntity extends ScimResourceEntity {
 
     @Column(unique = true)
@@ -67,24 +69,6 @@ public class ScimUserEntity extends ScimResourceEntity {
     @NotNull
     private boolean active;
 
-    @Size(max = 100)
-    private String employeeNumber;
-
-    @Size(max = 100)
-    private String costCenter;
-
-    @Size(max = 100)
-    private String organisation;
-
-    @Size(max = 100)
-    private String division;
-
-    @Size(max = 100)
-    private String department;
-
-    @ManyToOne
-    private ScimUserEntity manager;
-
     @NotNull
     @NotBlank
     @Size(min = 8, max = 255)
@@ -108,20 +92,30 @@ public class ScimUserEntity extends ScimResourceEntity {
     @OneToMany(
             mappedBy = "user",
             cascade = ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            fetch = EAGER
     )
     private Set<ScimUserGroupEntity> groups = new HashSet<>();
 
-    @ElementCollection(fetch = EAGER)
+    @ElementCollection
     private Set<String> entitlements = new HashSet<>();
 
-    @ElementCollection(fetch = EAGER)
+    @ElementCollection
     private Set<String> roles = new HashSet<>();
 
-    @ElementCollection(fetch = EAGER)
+    @ElementCollection
     private Set<String> x509Certificates = new HashSet<>();
 
     public ScimUserEntity() {
+    }
+
+    public ScimUserEntity(UUID identifier, String userName, String familyName,
+                          String givenName, boolean active,
+                          String password, Set<ScimEmailEntity> emails,
+                          Set<ScimUserGroupEntity> groups, Set<String> roles) {
+        this(identifier, null, userName, familyName, givenName, null, null, null,
+                null, null, null, null, null, null, null,
+                active, password, emails, null, null, null, null, groups, null, roles, null);
     }
 
     public ScimUserEntity(UUID identifier, String externalId, String userName, String familyName,
@@ -131,15 +125,13 @@ public class ScimUserEntity extends ScimResourceEntity {
                           Set<ScimUserGroupEntity> groups, Set<String> entitlements, Set<String> roles) {
         this(identifier, externalId, userName, familyName, givenName, null, null, null,
                 null, null, null, null, null, null, null,
-                active, null, null, null, null, null, null,
-                password, emails, phoneNumbers, ims, null, addresses, groups, entitlements, roles, null);
+                active, password, emails, phoneNumbers, ims, null, addresses, groups, entitlements, roles, null);
     }
 
     public ScimUserEntity(UUID identifier, String externalId, String userName, String familyName,
                           String givenName, String middleName, String honorificPrefix, String honorificSuffix,
                           String nickName, URI profileUrl, String title, String userType, String preferredLanguage,
-                          String locale, String timezone, boolean active, String employeeNumber, String costCenter,
-                          String organisation, String division, String department, ScimUserEntity manager,
+                          String locale, String timezone, boolean active,
                           String password, Set<ScimEmailEntity> emails, Set<ScimPhoneNumberEntity> phoneNumbers,
                           Set<ScimImsEntity> ims, Set<ScimPhotoEntity> photos, Set<ScimAddressEntity> addresses,
                           Set<ScimUserGroupEntity> groups, Set<String> entitlements, Set<String> roles,
@@ -159,12 +151,6 @@ public class ScimUserEntity extends ScimResourceEntity {
         this.locale = locale;
         this.timezone = timezone;
         this.active = active;
-        this.employeeNumber = employeeNumber;
-        this.costCenter = costCenter;
-        this.organisation = organisation;
-        this.division = division;
-        this.department = department;
-        this.manager = manager;
         this.password = password;
         this.emails = emails;
         this.phoneNumbers = phoneNumbers;
@@ -369,54 +355,6 @@ public class ScimUserEntity extends ScimResourceEntity {
         this.x509Certificates = x509Certificates;
     }
 
-    public String getEmployeeNumber() {
-        return employeeNumber;
-    }
-
-    public void setEmployeeNumber(String employeeNumber) {
-        this.employeeNumber = employeeNumber;
-    }
-
-    public String getCostCenter() {
-        return costCenter;
-    }
-
-    public void setCostCenter(String costCenter) {
-        this.costCenter = costCenter;
-    }
-
-    public String getOrganisation() {
-        return organisation;
-    }
-
-    public void setOrganisation(String organisation) {
-        this.organisation = organisation;
-    }
-
-    public String getDivision() {
-        return division;
-    }
-
-    public void setDivision(String division) {
-        this.division = division;
-    }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
-    public ScimUserEntity getManager() {
-        return manager;
-    }
-
-    public void setManager(ScimUserEntity manager) {
-        this.manager = manager;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -435,12 +373,6 @@ public class ScimUserEntity extends ScimResourceEntity {
                 .append("locale", locale)
                 .append("timezone", timezone)
                 .append("active", active)
-                .append("employeeNumber", employeeNumber)
-                .append("costCenter", costCenter)
-                .append("organisation", organisation)
-                .append("division", division)
-                .append("department", department)
-                .append("manager", manager)
                 .append("password", password)
                 .append("emails", emails)
                 .append("phoneNumbers", phoneNumbers)
@@ -478,12 +410,6 @@ public class ScimUserEntity extends ScimResourceEntity {
                 .append(preferredLanguage, that.preferredLanguage)
                 .append(locale, that.locale)
                 .append(timezone, that.timezone)
-                .append(employeeNumber, that.employeeNumber)
-                .append(costCenter, that.costCenter)
-                .append(organisation, that.organisation)
-                .append(division, that.division)
-                .append(department, that.department)
-                .append(manager, that.manager)
                 .append(password, that.password)
                 .append(emails, that.emails)
                 .append(phoneNumbers, that.phoneNumbers)
@@ -515,12 +441,6 @@ public class ScimUserEntity extends ScimResourceEntity {
                 .append(locale)
                 .append(timezone)
                 .append(active)
-                .append(employeeNumber)
-                .append(costCenter)
-                .append(organisation)
-                .append(division)
-                .append(department)
-                .append(manager)
                 .append(password)
                 .append(emails)
                 .append(phoneNumbers)
